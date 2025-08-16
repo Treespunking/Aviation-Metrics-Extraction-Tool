@@ -10,8 +10,18 @@ st.title("Aircraft Data Extraction Tool")
 st.markdown("Extract structured data from aircraft listings using AI.")
 
 # Load API key
-load_dotenv()
-api_key = os.getenv("OPENROUTER_API_KEY")
+# Use Streamlit secrets in production
+try:
+    api_key = st.secrets["OPENROUTER_API_KEY"]
+except Exception:
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    api_key = os.getenv("OPENROUTER_API_KEY")
+
+if not api_key:
+    st.error("OPENROUTER_API_KEY not found in secrets or .env")
+    st.stop()
 
 if not api_key:
     st.error("OPENROUTER_API_KEY not found in `.env`. Please add it.")
