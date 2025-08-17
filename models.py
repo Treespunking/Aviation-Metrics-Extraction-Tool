@@ -62,18 +62,17 @@ class AircraftData(BaseModel):
         alias="Date of Overhaul Due"
     )
 
-    class Config:
-        # Allow population by field name *and* by alias
-        allow_population_by_field_name = True
-        # Prevent extra fields from breaking validation
-        extra = 'ignore'
+    # Pydantic v2 config
+    model_config = {
+        "validate_by_name": True,    
+        "extra": "ignore"            # ignore extra fields
+    }
 
-    def dict(self, *args, **kwargs):
-        # Ensure alias is used when converting to dict
-        kwargs.setdefault('by_alias', True)
-        return super().dict(*args, **kwargs)
-
+    # Override model_dump to use alias by default (replaces .dict())
     def model_dump(self, *args, **kwargs):
-        # Modern Pydantic v2 method: ensure by_alias=True by default
-        kwargs.setdefault('by_alias', True)
+        kwargs.setdefault("by_alias", True)
         return super().model_dump(*args, **kwargs)
+
+    # Optional: Keep a .dict() fallback if some code still uses it
+    def dict(self, *args, **kwargs):
+        return self.model_dump(*args, **kwargs)
