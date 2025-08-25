@@ -4,7 +4,7 @@
 
 #### **Problem Statement**
 
-In the aviation industry, aircraft listings whether from brokers, marketplaces, or internal databases—are typically published as unstructured text. These descriptions contain critical technical and operational data such as engine hours, overhaul history, registration numbers, and maintenance programs. However, manually extracting and structuring this information is time-consuming, error-prone, and inefficient, especially when processing large volumes of listings.
+In the aviation industry, aircraft listings whether from brokers, marketplaces, or internal databases are typically published as unstructured text. These descriptions contain critical technical and operational data such as engine hours, overhaul history, registration numbers, and maintenance programs. However, manually extracting and structuring this information is time-consuming, error-prone, and inefficient, especially when processing large volumes of listings.
 
 This lack of automation hinders key workflows including aircraft valuation, compliance tracking, pre-purchase evaluations, and fleet management. Without a standardized way to convert free-form text into structured, analyzable data, organizations face delays and inconsistencies in decision-making.
 
@@ -68,8 +68,8 @@ The **Aircraft Data Extraction Tool** transforms unstructured aircraft listings 
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/aircraft-data-extractor.git
-cd aircraft-data-extractor
+git clone https://github.com/Treespunking/Aviation-Metrics-Extraction-Tool.git
+cd Aviation-Metrics-Extraction-Tool
 
 # Install dependencies
 pip install -r requirements.txt
@@ -126,7 +126,7 @@ __________________________________________________
 ## Project Structure
 
 ```
-aircraft-data-extractor/
+Aviation-Metrics-Extraction-Tool/
 │
 ├── extractor.py           # Core extraction logic
 ├── models.py              # Pydantic model for data validation
@@ -181,7 +181,7 @@ You can:
 - Add new fields to `models.py` and the system prompt
 - Change the LLM model in `extractor.py`
 - Adjust calculation logic in `_calculate_fields()`
-- Style the UI by editing the CSS in `app.py`
+- Style the UI by editing the CSS in `streamlit_app.py`
 
 ---
 
