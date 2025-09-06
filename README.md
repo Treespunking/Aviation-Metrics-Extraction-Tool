@@ -1,197 +1,149 @@
-### **Project Overview: Aviation Metrics Extraction Tool**
+# Aviation Aircraft Data Extractor
+
+A smart data extraction tool to parse aircraft listing information and extract structured technical and maintenance data using **LLM-powered parsing** with validation and intelligent field calculation.
+
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![LangChain](https://img.shields.io/badge/Tool-LangChain-purple)
+![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-orange)
 
 ---
 
-#### **Problem Statement**
-
-In the aviation industry, aircraft listings whether from brokers, marketplaces, or internal databases are typically published as unstructured text. These descriptions contain critical technical and operational data such as engine hours, overhaul history, registration numbers, and maintenance programs. However, manually extracting and structuring this information is time-consuming, error-prone, and inefficient, especially when processing large volumes of listings.
-
-This lack of automation hinders key workflows including aircraft valuation, compliance tracking, pre-purchase evaluations, and fleet management. Without a standardized way to convert free-form text into structured, analyzable data, organizations face delays and inconsistencies in decision-making.
-
----
-
-#### **Approach**
-
-To address this challenge, we developed an AI-powered **Aircraft Data Extraction Tool** that automatically parses unstructured aircraft listings and extracts specific, high-value fields into a consistent JSON format. The solution leverages the following components:
-
-- **Large Language Model (LLM)**: Utilizing Qwen3 via OpenRouter, the system understands natural language descriptions and identifies relevant aircraft data with high accuracy.
-- **Structured Prompt Engineering**: A carefully designed system prompt instructs the LLM to extract only predefined fields and return clean, valid JSON without explanations, formatting, or extraneous text.
-- **Pydantic Data Validation**: A robust `AircraftData` model enforces schema validation, ensuring extracted values meet expected types (e.g., integers for TSN, dates for overhauls).
-- **Post-Processing Logic**: Calculated fields such as *Time Remaining Before Overhaul*, *Years Left for Operation*, and *On-Condition Repair Status* are derived using business rules based on extracted values.
-- **Flexible Input Handling**: The tool supports both single-text input (for quick analysis) and batch processing via Excel upload, making it suitable for individual users and enterprise use cases.
-- **Streamlit Frontend**: A user-friendly web interface allows non-technical users to interact with the tool easily, view results in real-time, and export structured outputs.
-
-The system is built using modern Python frameworks including `langchain`, `pydantic v2`, `pandas`, and `Streamlit`, ensuring scalability, maintainability, and seamless integration.
+## Features
+- Extracts key aircraft engine and maintenance data from unstructured text
+- Powered by **Qwen3-235B** via OpenRouter for high-accuracy parsing
+- Handles multi-engine configurations (e.g., Left/Right values)
+- Validates output using Pydantic models
+- Calculates derived fields (e.g., time remaining before overhaul)
+- Supports dynamic date and numeric field resolution
+- Clean, modular code with error handling and logging
 
 ---
 
-#### **Solution**
+## Requirements
+- Python 3.8+
+- OpenRouter API key (free tier supported)
+- Internet access for LLM inference
 
-The **Aircraft Data Extraction Tool** transforms unstructured aircraft listings into structured, actionable data with minimal user effort. Key features include:
-
-- **Accurate Field Extraction**: Automatically identifies and extracts 15+ critical fields such as:
-  - Manufacture year
-  - Registration number
-  - TTAF, TSN, CSN
-  - Engine position and overhaul history
-  - HSI (Hot Section Inspection) details
-  - Insurance maintenance program enrollment
-
-- **Smart Data Enrichment**:
-  - Calculates remaining time before overhaul based on engine program, HSI, or midlife rules.
-  - Determines operational lifespan in years and estimated flight hours.
-  - Flags aircraft under *on-condition* maintenance regimes.
-
-- **Robust Error Handling**:
-  - Cleans malformed LLM outputs (e.g., removes `<think>` tags, extracts embedded JSON).
-  - Validates data integrity and provides clear error messages when parsing fails.
-
-- **User-Friendly Interface**:
-  - Two modes: single text input and batch Excel processing.
-  - Real-time feedback with progress tracking during batch jobs.
-  - Exportable CSV results for downstream analysis.
-
-- **Deployment Ready**:
-  - Secure API key management via environment variables or Streamlit secrets.
-  - Modular design allows integration into larger aviation data platforms.
-  
 ---
 
-## Getting Started
+## Setup & Installation
 
-### Prerequisites
-- Python 3.9+
-- An API key from [OpenRouter.ai](https://openrouter.ai)
-- `pip` package manager
-
-### Installation
-
+### 1. Clone the repo
 ```bash
-# Clone the repository
 git clone https://github.com/Treespunking/Aviation-Metrics-Extraction-Tool.git
 cd Aviation-Metrics-Extraction-Tool
+```
 
-# Install dependencies
+### 2. Set up virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### 3. Install dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-### Environment Setup
+> If missing, create `requirements.txt` with:
+```txt
+streamlit
+langchain
+langchain-openai
+pydantic
+pandas
+openpyxl
+python-dotenv
+pytest
+```
 
-Create a `.env` file in the root directory:
+### 4. Add your API key in `.env`
 ```env
-OPENROUTER_API_KEY=your_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 ```
+> Never commit this file! It should be in `.gitignore`.
 
-Or use [Streamlit Secrets](https://docs.streamlit.io/deploy/concepts/secrets-management) if deploying online.
-
-### Run the App
-
+### 5. Run the extraction (example)
 ```bash
-streamlit run app.py
+python extractor.py
 ```
-
-Open your browser to `http://localhost:8501`
+> Note: This is a library module. Use via script or integrate into your app.
 
 ---
 
-## UI Screenshot (Example)
+## How It Works
 
-```
-[ Aircraft Data Extraction Tool ]
---------------------------------------------------
-Enter Aircraft Listing Text
-__________________________________________________
-2018 Cessna 172 Skyhawk, TTAF: 1,200 hours, TSN: 800,
-Garmin G1000, full IFR, HSI done in 2023, enrolled in
-Textron Engine Assurance Program. Located in Florida.
-__________________________________________________
+The system uses a **prompt-engineered LLM chain** to extract structured data from aircraft listings:
 
-[ 🔍 Extract Data ]
+1. Input text (e.g., aircraft ad) is sent to the LLM
+2. Model extracts fields like TSN, CSN, TTAF, overhaul dates, etc.
+3. Output is cleaned and parsed into valid JSON
+4. Data is validated using Pydantic model
+5. Additional fields are calculated (e.g., time remaining before overhaul)
 
-✅ Extraction Successful!
-
-{
-  "Manufacture Year of plane": 2018,
-  "TTAF": 1200,
-  "TSN": 800,
-  "Engine Maintenance Insurance Program Name": "Textron Engine Assurance Program",
-  "Time Remaining before Overhaul": 8000,
-  "Basis of Calculation": "Insurance Maintenance Program",
-  ...
-}
-```
+### Calculated Fields
+- `Time Remaining before Overhaul`: Based on program, HSI, TSOH, or TSN
+- `Basis of Calculation`: Why the above value was chosen
+- `On Condition Repair`: Flags if engine is likely on-condition
+- `Average Hours left`: Estimated usage at 450 hrs/year
 
 ---
 
 ## Project Structure
-
 ```
-Aviation-Metrics-Extraction-Tool/
+aviation-data-extractor/
 │
-├── extractor.py           # Core extraction logic
-├── models.py              # Pydantic model for data validation
-├── streamlit_app.py       # Streamlit frontend
-├── requirements.txt       # Dependencies
-├── README.md              # This file
-└── .env.example           # Example environment file
+├── extractor.py             # Main extraction logic
+├── models.py                # Pydantic data model
+├── requirements.txt         # Dependencies
+├── streamlit_app.py         # (Optional) Web UI for demo
 ```
 
 ---
 
-## Dependencies
+## Example Usage
 
-- `langchain-openai` – To interface with OpenRouter (via LLM API)
-- `pydantic` – For data modeling and validation
-- `streamlit` – Web UI
-- `pandas` – For batch processing Excel files
-- `python-dotenv` – Environment variable management
+```python
+from extractor import AircraftDataExtractor
 
-Install all with:
-```bash
-pip install -r requirements.txt
+extractor = AircraftDataExtractor(api_key="your-key")
+
+text = """
+2005 Cessna 172S, Reg: N12345, TTAF: 4850 hours. 
+Engine: Lycoming IO-360-L2A, TSN: 1200 (both engines), CSN: 890. 
+Last HSI: 2023-05-15, 3200 hours since HSI. Enrolled in Lycoming ESP.
+"""
+
+result = extractor.extract_single(text)
+print(result)
 ```
 
 ---
 
 ## Output Example
-
 ```json
 {
-  "Manufacture Year of plane": 2015,
-  "Registration number of plane": "N45678",
-  "TTAF": 2100,
-  "TSN": 2100,
-  "CSN": 320,
-  "Engine Maintenance Insurance Program Name": "Nordam Power by the Hour",
-  "Time Remaining before Overhaul": 5900,
-  "Basis of Calculation": "time since new",
-  "years left for operation": 12.45,
-  "Average Hours left for operation according to 450 hours annual usage": 5602.5,
+  "Date advertisement was posted": null,
+  "Manufacture Year of plane": 2005,
+  "Registration number of plane": "N12345",
+  "TTAF": 4850,
+  "Position of engine": ["Left", "Right"],
+  "TSN": 1200,
+  "CSN": 890,
+  "Total Time Since Overhaul (TSOH)": null,
+  "Time Before Overhaul provided in the information (Early TBO)": null,
+  "Hours since HSI (Hot Service Inspection)": 3200,
+  "Date of Last HSI (Hot Service Inspection)": "2023-05-15",
+  "Insurance Maintenance Program the engine is enrolled in": "Lycoming ESP",
+  "Date of Last Overhaul": null,
+  "Date of Overhaul Due": null,
+  "Engine Maintenance Insurance Program Name": "Lycoming ESP",
+  "Time Remaining before Overhaul": 8000,
+  "Basis of Calculation": "Insurance Maintenance Program",
+  "years left for operation": null,
+  "Average Hours left for operation according to 450 hours annual usage": null,
   "On Condition Repair": false
 }
 ```
-
-Exportable as **CSV** for integration with Excel, BI tools, or databases.
-
----
-
-## Customization
-
-You can:
-- Add new fields to `models.py` and the system prompt
-- Change the LLM model in `extractor.py`
-- Adjust calculation logic in `_calculate_fields()`
-- Style the UI by editing the CSS in `streamlit_app.py`
-
----
-
-## Deployment
-
-Deploy securely using:
-- [Streamlit Community Cloud](https://streamlit.io/cloud)
-- Docker + AWS/GCP
-- FastAPI backend (for API-only use)
-
-Ensure your API key is protected using secrets management.
 
 ---
